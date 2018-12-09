@@ -1,0 +1,116 @@
+AllCops:
+  DisplayCopNames: true
+  TargetRubyVersion: 2.5
+  Exclude:
+    - "Rakefile"
+    - "tmp/**/*"
+
+Gemspec/RequiredRubyVersion:
+  Enabled: false
+
+Layout/AlignHash:
+  Exclude:
+    - "spec/**/*"
+
+Layout/EmptyLineAfterGuardClause:
+  Enabled: false
+
+Layout/SpaceBeforeBlockBraces:
+  Exclude:
+    - "spec/**/*"
+
+Layout/SpaceInsideBlockBraces:
+  Exclude:
+    - "spec/**/*"
+
+Metrics/AbcSize:
+  Enabled: false
+
+Metrics/BlockLength:
+  Enabled: false
+
+Metrics/CyclomaticComplexity:
+  Enabled: false
+
+Metrics/LineLength:
+  Enabled: false
+
+Metrics/MethodLength:
+  Enabled: false
+
+Metrics/PerceivedComplexity:
+  Exclude:
+    - "lib/pipe_operator/proxy.rb"
+    - "lib/pipe_operator/proxy_resolver.rb"
+
+Naming/MemoizedInstanceVariableName:
+  Exclude:
+    - "lib/pipe_operator/closure.rb"
+
+Naming/UncommunicativeMethodParamName:
+  Enabled: false
+
+Style/BlockDelimiters:
+  Exclude:
+    - "spec/**/*"
+
+Style/CaseEquality:
+  Enabled: false
+
+Style/Documentation:
+  Enabled: false
+
+Style/DoubleNegation:
+  Enabled: false
+
+Style/FormatString:
+  Enabled: false
+
+Style/FormatStringToken:
+  Enabled: false
+
+Style/FrozenStringLiteralComment:
+  Enabled: false
+
+Style/GuardClause:
+  Enabled: false
+
+Style/LambdaCall:
+  Exclude:
+    - "spec/**/*"
+
+Style/MethodMissingSuper:
+  Exclude:
+    - "lib/pipe_operator/closure.rb"
+    - "lib/pipe_operator/pipe.rb"
+
+Style/RedundantBegin:
+  Exclude:
+    - "lib/pipe_operator/proxy_resolver.rb"
+
+Style/RescueModifier:
+  Exclude:
+    - "lib/pipe_operator/proxy_resolver.rb"
+
+Style/MissingRespondToMissing:
+  Exclude:
+    - "lib/pipe_operator/closure.rb"
+    - "lib/pipe_operator/pipe.rb"
+
+Style/Semicolon:
+  Exclude:
+    - "spec/**/*"
+
+Style/SingleLineMethods:
+  Exclude:
+    - "spec/**/*"
+
+Style/StringLiterals:
+  EnforcedStyle: double_quotes
+
+Style/TrailingCommaInHashLiteral:
+  Exclude:
+    - "spec/**/*"
+
+Style/WordArray:
+  Enabled: false
