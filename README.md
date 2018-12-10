@@ -7,7 +7,8 @@
 ```
 
 ```ruby
-[9, 64].map(&Math.|.sqrt.to_i) #=> [3, 8]
+[9, 64].map(&Math.|.sqrt)           #=> [3.0, 8.0]
+[9, 64].map(&Math.|.sqrt.to_i.to_s) #=> ["3", "8"]
 ```
 
 ```ruby
@@ -128,7 +129,7 @@ This concept of **pipes could be a great fit** like it has been for many other l
 
 **WARNING - EXPERIMENTAL PROOF OF CONCEPT**
 
-This has only been **tested in isolation with RSpec**!
+This has only been **tested in isolation with RSpec and Ruby 2.5.3**!
 
 ```ruby
 # First `gem install pipe_operator`
