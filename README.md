@@ -12,7 +12,7 @@
 ```
 
 ```ruby
-"https://api.github.com/repos/ruby/ruby".| do
+"https://api.github.com/repos/ruby/ruby".pipe do
   URI.parse
   Net::HTTP.get
   JSON.parse.fetch("stargazers_count")
@@ -84,7 +84,7 @@ end
 While the ability to perform a job correctly and efficiently is certainly important - the **true beauty of a program lies in its clarity and conciseness**:
 
 ```ruby
-"https://api.github.com/repos/ruby/ruby".| do
+"https://api.github.com/repos/ruby/ruby".pipe do
   URI.parse
   Net::HTTP.get
   JSON.parse.fetch("stargazers_count")
