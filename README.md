@@ -47,7 +47,7 @@ The [Elixir pipe operator documentation](https://elixirschool.com/en/lessons/bas
 JSON.parse(Net::HTTP.get(URI.parse(url)))
 ```
 
-To be **inversed** and rewritten as **left to right** or **top to bottom** which is more **natural to read** in English:
+To be **inverted** and rewritten as **left to right** or **top to bottom** which is more **natural to read** in English:
 
 ```ruby
 # left to right
