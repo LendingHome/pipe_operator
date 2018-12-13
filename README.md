@@ -372,6 +372,7 @@ end
         * `call`
         * `class`
         * `kind_of?`
+        * `|`
     * The following methods are reserved on `PipeOperator::Pipe` objects:
         * `!`
         * `!=`
