@@ -165,10 +165,13 @@ require "pipe_operator"
 The [PipeOperator](https://github.com/lendinghome/pipe_operator/blob/master/lib/pipe_operator.rb) module has a method named `__pipe__` which is aliased as `pipe` for convenience and `|` for syntactic sugar:
 
 ```ruby
-def __pipe__(*args, &block)
-  Pipe.new(self, *args, &block)
+module PipeOperator
+  def __pipe__(*args, &block)
+    Pipe.new(self, *args, &block)
+  end
 end
 
+BasicObject.send(:include, PipeOperator)
 Kernel.alias_method(:pipe, :__pipe__)
 Module.alias_method(:|, :__pipe__)
 ```
