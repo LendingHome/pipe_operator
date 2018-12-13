@@ -331,7 +331,9 @@ define_method(method) do |*args, &block|
 end
 ```
 
-These **proxy modules are prepended everywhere**! It's certainly something that **could be way more efficient as a core part of Ruby**.
+These **proxy modules are prepended everywhere**!
+
+It's certainly something that **could be way more efficient as a core part of Ruby**.
 
 Maybe somewhere **lower level where methods are dispatched**? Possibly somewhere in this [vm_eval.c switch](https://github.com/ruby/ruby/blob/trunk/vm_eval.c#L111)?
 
