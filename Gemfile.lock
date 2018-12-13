@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    pipe_operator (0.0.1)
+    pipe_operator (0.0.2)
 
 GEM
   remote: https://www.rubygems.org/
