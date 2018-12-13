@@ -1,6 +1,4 @@
 RSpec.describe PipeOperator do
-  using PipeOperator
-
   describe ".gem" do
     it "returns a Gem::Specification" do
       gem = PipeOperator.gem
@@ -61,7 +59,7 @@ RSpec.describe PipeOperator do
     end
 
     it "curries arguments and blocks" do
-      actual = "testing".|.sub("test").("TEST")
+      actual = "testing".pipe.sub("test").("TEST")
       expect(actual).to eq("TESTing")
 
       actual = ["testing"].pipe.map(&:upcase).call
@@ -106,22 +104,22 @@ RSpec.describe PipeOperator do
     end
 
     it "supports pipe and stream expressions" do
-      actual = "-9".|{to_i}
+      actual = "-9".pipe{to_i}
       expect(actual).to eq(-9)
 
-      actual = "-9".|{to_i; abs}
+      actual = "-9".pipe{to_i; abs}
       expect(actual).to eq(9)
 
-      actual = "-9".|{to_i; abs; Math.sqrt}
+      actual = "-9".pipe{to_i; abs; Math.sqrt}
       expect(actual).to eq(3)
 
       actual = "-9".pipe { to_i | abs | Math.sqrt }
       expect(actual).to eq(3)
 
-      actual = "-9".|{to_i; abs; Math.sqrt; to_i; send(:*, 2)}
+      actual = "-9".pipe{to_i; abs; Math.sqrt; to_i; send(:*, 2)}
       expect(actual).to eq(6)
 
-      actual = "-16".|{
+      actual = "-16".pipe{
         to_i
         abs
         Math.sqrt
@@ -174,7 +172,7 @@ RSpec.describe PipeOperator do
         end
       end
 
-      actual = Markdown.new.|.format.call("test")
+      actual = Markdown.new.pipe.format.call("test")
       expect(actual).to eq("TEST")
 
       actual = "test".pipe(Markdown.new, &:format)

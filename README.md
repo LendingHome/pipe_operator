@@ -42,22 +42,10 @@ sqrt.call(64)         #=> 8.0
 
 ```ruby
 # Still not concise enough for you?
-::PipeOperator.alias_method(:|, :pipe)
+Module.alias_method(:|, :__pipe__)
 
-[9, 64].map(&Math.|.sqrt) #=> [3.0, 8.0]
-
-# Note that objects which have their own definitions
-# of the `|` method/operator wont be impacted by this:
-1 | 2 #=> 3
-
-# But pipe operations wont work on those objects via `|`:
-1.|.to_s #=> ArgumentError: wrong number of arguments (given 0, expected 1)
-
-# So just be explicit with `pipe` in those cases:
-1.pipe.to_s.call #=> "1"
-
-# Or use __pipe__ to be really explicit:
-1.__pipe__.to_s.call #=> "1"
+[9, 64].map(&Math.|.sqrt)           #=> [3.0, 8.0]
+[9, 64].map(&Math.|.sqrt.to_i.to_s) #=> [3.0, 8.0]
 ```
 
 ## Why?
@@ -172,17 +160,6 @@ This has only been **tested in isolation with RSpec and Ruby 2.5.3**!
 ```ruby
 # First `gem install pipe_operator`
 require "pipe_operator"
-
-# Then use PipeOperator as a refinement
-using ::PipeOperator
-
-# Or include PipeOperator in classes/modules
-class AnyClass
-  include ::PipeOperator
-end
-
-# Or monkey patch PipeOperator into ALL objects
-require "pipe_operator/autoload"
 ```
 
 ## Implementation
@@ -194,8 +171,8 @@ def __pipe__(*args, &block)
   Pipe.new(self, *args, &block)
 end
 
-alias | __pipe__
-alias pipe __pipe__
+Kernel.alias_method(:pipe, :__pipe__)
+Module.alias_method(:|, :__pipe__)
 ```
 
 When no arguments are passed to `__pipe__` then a [PipeOperator::Pipe](https://github.com/lendinghome/pipe_operator/blob/master/lib/pipe_operator/pipe.rb) object is returned:
@@ -433,6 +410,7 @@ bundle exec rspec
 * https://github.com/tiagopog/piped_ruby
 * https://github.com/jicksta/methodphitamine
 * https://github.com/jicksta/superators
+* https://github.com/baweaver/xf
 
 ## Contributing
 

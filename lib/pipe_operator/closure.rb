@@ -39,6 +39,10 @@ module PipeOperator
       super
     end
 
+    def |(*args, &block)
+      Pipe.new(self, *args, &block)
+    end
+
     def __chain__(*args)
       return @__chain__ if args.empty?
 

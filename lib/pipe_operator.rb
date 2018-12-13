@@ -13,10 +13,6 @@ module PipeOperator
   def __pipe__(*args, &block)
     Pipe.new(self, *args, &block)
   end
-  alias | __pipe__
-  alias pipe __pipe__
-
-  refine(::BasicObject) { include PipeOperator }
 
   class << self
     def gem
@@ -47,3 +43,7 @@ module PipeOperator
     end
   end
 end
+
+BasicObject.send(:include, PipeOperator)
+Kernel.alias_method(:pipe, :__pipe__)
+Module.alias_method(:|, :__pipe__)
