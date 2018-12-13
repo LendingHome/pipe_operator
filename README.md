@@ -39,7 +39,7 @@ sqrt.call(64)         #=> 8.0
 Module.alias_method(:|, :__pipe__)
 
 [9, 64].map(&Math.|.sqrt)           #=> [3.0, 8.0]
-[9, 64].map(&Math.|.sqrt.to_i.to_s) #=> [3.0, 8.0]
+[9, 64].map(&Math.|.sqrt.to_i.to_s) #=> ["3, "8"]
 ```
 
 ## Why?
