@@ -26,8 +26,8 @@ end
 # of a PipeOperator::Pipe object which defines its
 # own implementation for how `|` should behave.
 #
-# If we actually need to pipe the method `|` on some
-# other object then we can just use the `send` method:
+# If we actually need to pipe the method `|` on
+# some other object then we can just use `send`:
 -2.pipe { abs | send(:|, 4) } #=> 6
 ```
 
@@ -74,11 +74,11 @@ This gem was created to **propose an alternative syntax** for this kind of behav
 
 Source: [ruby-lang.org/en/about](https://www.ruby-lang.org/en/about)
 
-Ruby is a **language of careful balance**.
+Ruby is a language of careful **balance of both functional and imperative programming**.
 
 Matz has often said that he is **trying to make Ruby natural, not simple**, in a way that mirrors life.
  
-Building on this, he adds: Ruby is **simple in appearance, but is very complex** inside, just like our human body.
+Building on this, he adds: Ruby is **simple in appearance, but is very complex inside**, just like our human body.
 
 ## Concept
 
@@ -331,7 +331,33 @@ define_method(method) do |*args, &block|
 end
 ```
 
-These proxy modules are prepended everywhere! It's certainly something that **could be way more efficient as a core part of Ruby**.
+These **proxy modules are prepended everywhere**! It's certainly something that **could be way more efficient as a core part of Ruby**.
+
+Maybe somewhere **lower level where methods are dispatched**? Possibly somewhere in this [vm_eval.c switch](https://github.com/ruby/ruby/blob/trunk/vm_eval.c#L111)?
+
+```c
+again:
+  switch (cc->me->def->type) {
+    case VM_METHOD_TYPE_ISEQ
+    case VM_METHOD_TYPE_NOTIMPLEMENTED
+    case VM_METHOD_TYPE_CFUNC
+    case VM_METHOD_TYPE_ATTRSET
+    case VM_METHOD_TYPE_IVAR
+    case VM_METHOD_TYPE_BMETHOD
+    case VM_METHOD_TYPE_ZSUPER
+    case VM_METHOD_TYPE_REFINED
+    case VM_METHOD_TYPE_ALIAS
+    case VM_METHOD_TYPE_MISSING
+    case VM_METHOD_TYPE_OPTIMIZED
+    case OPTIMIZED_METHOD_TYPE_SEND
+    case OPTIMIZED_METHOD_TYPE_CALL
+    case VM_METHOD_TYPE_UNDEF
+  }
+```
+
+Then we'd **only need Ruby C API ports** for [PipeOperator::Pipe](https://github.com/LendingHome/pipe_operator/blob/master/lib/pipe_operator/pipe.rb) and [PipeOperator::Closure](https://github.com/LendingHome/pipe_operator/blob/master/lib/pipe_operator/closure.rb)!
+
+All other objects in this proof of concept are related to **method interception** and would no longer be necessary.
 
 ## Bugs
 
