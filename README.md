@@ -22,10 +22,6 @@ end
 # Pipe | for syntactic sugar:
 -9.pipe { abs | Math.sqrt.to_i } #=> 3
 
-# Pipe blocks are instance_exec within the context
-# of a PipeOperator::Pipe object which defines its
-# own implementation for how `|` should behave.
-#
 # If we actually need to pipe the method `|` on
 # some other object then we can just use `send`:
 -2.pipe { abs | send(:|, 4) } #=> 6
