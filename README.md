@@ -38,9 +38,7 @@ sqrt.call(64)         #=> 8.0
 
 [9, 64].map(&Math.pipe.sqrt)           #=> [3.0, 8.0]
 [9, 64].map(&Math.pipe.sqrt.to_i.to_s) #=> ["3", "8"]
-```
 
-```ruby
 # Still not concise enough for you?
 Module.alias_method(:|, :__pipe__)
 
