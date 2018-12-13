@@ -3,15 +3,6 @@
 > Elixir/Unix style pipe operations in Ruby - **PROOF OF CONCEPT**
 
 ```ruby
--9.pipe { abs | Math.sqrt | to_i } #=> 3
-```
-
-```ruby
-[9, 64].map(&Math.|.sqrt)           #=> [3.0, 8.0]
-[9, 64].map(&Math.|.sqrt.to_i.to_s) #=> ["3", "8"]
-```
-
-```ruby
 "https://api.github.com/repos/ruby/ruby".pipe do
   URI.parse
   Net::HTTP.get
@@ -19,7 +10,54 @@
   yield_self { |n| "Ruby has #{n} stars" }
   Kernel.puts
 end
-#=> Ruby has 15115 stars
+#=> Ruby has 15120 stars
+```
+
+```ruby
+-9.pipe { abs; Math.sqrt; to_i } #=> 3
+
+# Method chaining is supported:
+-9.pipe { abs; Math.sqrt.to_i } #=> 3
+
+# Pipe | for syntactic sugar:
+-9.pipe { abs | Math.sqrt.to_i } #=> 3
+
+# Pipe blocks are instance_exec within the context
+# of a PipeOperator::Pipe object which defines its
+# own implementation for how `|` should behave.
+#
+# If we actually need to pipe the method `|` on some
+# other object then we can just use the `send` method:
+-2.pipe { abs | send(:|, 4) } #=> 6
+```
+
+```ruby
+sqrt = Math.pipe.sqrt #=> #<PipeOperator::Closure:0x00007fc1172ed558@pipe_operator/closure.rb:18>
+sqrt.call(9)          #=> 3.0
+sqrt.call(64)         #=> 8.0
+
+[9, 64].map(&Math.pipe.sqrt)           #=> [3.0, 8.0]
+[9, 64].map(&Math.pipe.sqrt.to_i.to_s) #=> ["3", "8"]
+```
+
+```ruby
+# Still not concise enough for you?
+::PipeOperator.alias_method(:|, :pipe)
+
+[9, 64].map(&Math.|.sqrt) #=> [3.0, 8.0]
+
+# Note that objects which have their own definitions
+# of the `|` method/operator wont be impacted by this:
+1 | 2 #=> 3
+
+# But pipe operations wont work on those objects via `|`:
+1.|.to_s #=> ArgumentError: wrong number of arguments (given 0, expected 1)
+
+# So just be explicit with `pipe` in those cases:
+1.pipe.to_s.call #=> "1"
+
+# Or use __pipe__ to be really explicit:
+1.__pipe__.to_s.call #=> "1"
 ```
 
 ## Why?
@@ -31,6 +69,16 @@ There's been some recent activity related to `Method` and `Proc` composition in 
 * [#12125 - Shorthand operator for Object#method](https://bugs.ruby-lang.org/issues/12125)
 
 This gem was created to **propose an alternative syntax** for this kind of behavior.
+
+## Matz on Ruby
+
+Source: [ruby-lang.org/en/about](https://www.ruby-lang.org/en/about)
+
+Ruby is a **language of careful balance**.
+
+Matz has often said that he is **trying to make Ruby natural, not simple**, in a way that mirrors life.
+ 
+Building on this, he adds: Ruby is **simple in appearance, but is very complex** inside, just like our human body.
 
 ## Concept
 
@@ -97,22 +145,12 @@ end
 There's nothing really special here - it's just a **block of expressions like any other Ruby DSL** and the pipe `|` operator has been [around for decades](https://en.wikipedia.org/wiki/Pipeline_(Unix))!
 
 ```ruby
-# we can already do this
-objects.map(&Marshal.method(:dump))
-
-# but this is more concise
-objects.map(&Marshal.|.dump)
-```
-
-The **simplicity and elegance of Ruby** is one of the many reasons that people fall in love with the language!
-
-```ruby
-Ruby.is.so(:simple, &elegant).that(you can) do
+Ruby.is.so(elegant, &:expressive).that(you can) do
   pretty_much ANYTHING if it.compiles!
 end
 ```
 
-This concept of **pipes could be a great fit** like it has been for many other languages:
+This concept of **pipe operations could be a great fit** like it has been for many other languages:
 
 * [Caml composition operators](http://caml.inria.fr/pub/docs/manual-ocaml/libref/Pervasives.html#1_Compositionoperators)
 * [Closure threading macros](https://clojure.org/guides/threading_macros)
@@ -163,26 +201,26 @@ alias pipe __pipe__
 When no arguments are passed to `__pipe__` then a [PipeOperator::Pipe](https://github.com/lendinghome/pipe_operator/blob/master/lib/pipe_operator/pipe.rb) object is returned:
 
 ```ruby
-Math.| #=> #<PipeOperator::Pipe:Math>
+Math.pipe #=> #<PipeOperator::Pipe:Math>
 ```
 
 Any methods invoked on this object returns a [PipeOperator::Closure](https://github.com/lendinghome/pipe_operator/blob/master/lib/pipe_operator/closure.rb) which **calls the method on the object later**:
 
 ```ruby
-sqrt = Math.|.sqrt       #=> #<PipeOperator::Closure:0x00007fc1172ed558@pipe_operator/closure.rb:18>
-sqrt.call(16)            #=> 4.0
+sqrt = Math.pipe.sqrt       #=> #<PipeOperator::Closure:0x00007fc1172ed558@pipe_operator/closure.rb:18>
+sqrt.call(16)               #=> 4.0
 
-missing = Math.|.missing #=> #<PipeOperator::Closure:0x00007fc11726f0e0@pipe_operator/closure.rb:18>
-missing.call             #=> NoMethodError: undefined method 'missing' for Math:Module
+missing = Math.pipe.missing #=> #<PipeOperator::Closure:0x00007fc11726f0e0@pipe_operator/closure.rb:18>
+missing.call                #=> NoMethodError: undefined method 'missing' for Math:Module
 
-Math.method(:missing)    #=> NameError: undefined method 'missing' for class '#<Class:Math>'
+Math.method(:missing)       #=> NameError: undefined method 'missing' for class '#<Class:Math>'
 ```
 
 When `__pipe__` is called **with arguments but without a block** then it behaves similar to `__send__`:
 
 ```ruby
-sqrt = Math | :sqrt #=> #<PipeOperator::Closure:0x00007fe52e0cdf80@pipe_operator/closure.rb:18>
-sqrt.call(16)       #=> 4.0
+sqrt = Math.pipe(:sqrt) #=> #<PipeOperator::Closure:0x00007fe52e0cdf80@pipe_operator/closure.rb:18>
+sqrt.call(16)           #=> 4.0
 
 sqrt = Math.pipe(:sqrt, 16) #=> #<PipeOperator::Closure:0x00007fe52fa18fd0@pipe_operator/closure.rb:18>
 sqrt.call                   #=> 4.0
@@ -192,13 +230,13 @@ sqrt.call(16)               #=> ArgumentError: wrong number of arguments (given 
 These [PipeOperator::Closure](https://github.com/lendinghome/pipe_operator/blob/master/lib/pipe_operator/closure.rb) objects can be [bound as block arguments](https://github.com/lendinghome/pipe_operator/blob/master/lib/pipe_operator/proxy.rb#L10-L13) just like any other [Proc](https://ruby-doc.org/core-2.5.3/Proc.html):
 
 ```ruby
-[16, 256].map(&Math.|.sqrt) #=> [4.0, 16.0]
+[16, 256].map(&Math.pipe.sqrt) #=> [4.0, 16.0]
 ```
 
 Simple **closure composition is supported** via [method chaining](https://github.com/lendinghome/pipe_operator/blob/master/lib/pipe_operator/closure.rb#L56):
 
 ```ruby
-[16, 256].map(&Math.|.sqrt.to_i.to_s) #=> ["4", "16"]
+[16, 256].map(&Math.pipe.sqrt.to_i.to_s) #=> ["4", "16"]
 ```
 
 The **block** form of `__pipe__` behaves **similar to instance_exec** but can also [call methods on other objects](https://github.com/lendinghome/pipe_operator/blob/master/lib/pipe_operator/pipe.rb#L81):
