@@ -63,10 +63,6 @@ module PipeOperator
       pipe
     end
 
-    def |(*)
-      self
-    end
-
     private
 
     def method_missing(method, *curry, &block)

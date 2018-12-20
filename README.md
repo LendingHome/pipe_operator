@@ -17,14 +17,7 @@ end
 -9.pipe { abs; Math.sqrt; to_i } #=> 3
 
 # Method chaining is supported:
--9.pipe { abs; Math.sqrt.to_i } #=> 3
-
-# Pipe | for syntactic sugar:
--9.pipe { abs | Math.sqrt.to_i } #=> 3
-
-# If we actually need to pipe the method `|` on
-# some other object then we can just use `send`:
--2.pipe { abs | send(:|, 4) } #=> 6
+-9.pipe { abs; Math.sqrt.to_i.to_s } #=> "3
 ```
 
 ```ruby
@@ -34,12 +27,6 @@ sqrt.call(64)         #=> 8.0
 
 [9, 64].map(&Math.pipe.sqrt)           #=> [3.0, 8.0]
 [9, 64].map(&Math.pipe.sqrt.to_i.to_s) #=> ["3", "8"]
-
-# Still not concise enough for you?
-Module.alias_method(:|, :__pipe__)
-
-[9, 64].map(&Math.|.sqrt)           #=> [3.0, 8.0]
-[9, 64].map(&Math.|.sqrt.to_i.to_s) #=> ["3", "8"]
 ```
 
 ## Why?
@@ -81,7 +68,7 @@ To be **inverted** and rewritten as **left to right** or **top to bottom** which
 
 ```ruby
 # left to right
-url.pipe { URI.parse | Net::HTTP.get | JSON.parse }
+url.pipe { URI.parse; Net::HTTP.get; JSON.parse }
 
 # or top to bottom for clarity
 url.pipe do
@@ -124,7 +111,7 @@ end
 #=> Ruby has 15115 stars
 ```
 
-There's nothing really special here - it's just a **block of expressions like any other Ruby DSL** and the pipe `|` operator has been [around for decades](https://en.wikipedia.org/wiki/Pipeline_(Unix))!
+There's nothing really special here - it's just a **block of expressions like any other Ruby DSL** and pipe operations have been [around for decades](https://en.wikipedia.org/wiki/Pipeline_(Unix))!
 
 ```ruby
 Ruby.is.so(elegant, &:expressive).that(you can) do
@@ -158,7 +145,7 @@ require "pipe_operator"
 
 ## Implementation
 
-The [PipeOperator](https://github.com/lendinghome/pipe_operator/blob/master/lib/pipe_operator.rb) module has a method named `__pipe__` which is aliased as `pipe` for convenience and `|` for syntactic sugar:
+The [PipeOperator](https://github.com/lendinghome/pipe_operator/blob/master/lib/pipe_operator.rb) module has a method named `__pipe__` which is aliased as `pipe` for convenience:
 
 ```ruby
 module PipeOperator
@@ -169,7 +156,6 @@ end
 
 BasicObject.send(:include, PipeOperator)
 Kernel.alias_method(:pipe, :__pipe__)
-Module.alias_method(:|, :__pipe__)
 ```
 
 When no arguments are passed to `__pipe__` then a [PipeOperator::Pipe](https://github.com/lendinghome/pipe_operator/blob/master/lib/pipe_operator/pipe.rb) object is returned:
@@ -219,8 +205,8 @@ The **block** form of `__pipe__` behaves **similar to instance_exec** but can al
 "abc".pipe { reverse }        #=> "cba"
 "abc".pipe { reverse.upcase } #=> "CBA"
 
-"abc".pipe { Marshal.dump }                   #=> "\x04\bI\"\babc\x06:\x06ET"
-"abc".pipe { Marshal.dump | Base64.encode64 } #=> "BAhJIghhYmMGOgZFVA==\n"
+"abc".pipe { Marshal.dump }                  #=> "\x04\bI\"\babc\x06:\x06ET"
+"abc".pipe { Marshal.dump; Base64.encode64 } #=> "BAhJIghhYmMGOgZFVA==\n"
 ```
 
 Outside the context of a `__pipe__` block things behave like normal:
@@ -254,29 +240,20 @@ end
 Instance methods like `reverse` below [do not receive the piped object](https://github.com/lendinghome/pipe_operator/blob/master/lib/pipe_operator/pipe.rb#L79) as [an argument](https://github.com/lendinghome/pipe_operator/blob/master/lib/pipe_operator/closure.rb#L47) since it's available as `self`:
 
 ```ruby
-Base64.encode64(Marshal.dump("abc").reverse)            #=> "VEUGOgZjYmEIIkkIBA==\n"
+Base64.encode64(Marshal.dump("abc").reverse)          #=> "VEUGOgZjYmEIIkkIBA==\n"
 
-"abc".pipe { Marshal.dump | reverse | Base64.encode64 } #=> "VEUGOgZjYmEIIkkIBA==\n"
+"abc".pipe { Marshal.dump; reverse; Base64.encode64 } #=> "VEUGOgZjYmEIIkkIBA==\n"
+
+"abc".pipe { Marshal.dump.reverse; Base64.encode64 }  #=> "VEUGOgZjYmEIIkkIBA==\n"
 ```
 
 Pipes also support **multi-line blocks for clarity**:
 
 ```ruby
 "abc".pipe do
-  Marshal.dump
-  reverse
+  Marshal.dump.reverse
   Base64.encode64
 end
-```
-
-Notice the pipe `|` operator wasn't used to **separate expressions** - it's actually always optional:
-
-```ruby
-# this example from above
-"abc".pipe { Marshal.dump | reverse | Base64.encode64 }
-
-# could also be written as
-"abc".pipe { Marshal.dump; reverse; Base64.encode64 }
 ```
 
 The closures created by these **pipe expressions are evaluated via reduce**:
@@ -372,7 +349,6 @@ end
         * `call`
         * `class`
         * `kind_of?`
-        * `|`
     * The following methods are reserved on `PipeOperator::Pipe` objects:
         * `!`
         * `!=`
@@ -384,7 +360,6 @@ end
         * `__send__`
         * `instance_exec`
         * `method_missing`
-        * `|`
     * These methods can be piped via `send` as a workaround:
         * `9.pipe { Math.sqrt.to_s.send(:[], 0) }`
         * `example.pipe { send(:__call__, 1, 2, 3) }`

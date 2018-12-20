@@ -29,13 +29,13 @@ RSpec.describe PipeOperator do
     end
 
     it "returns a pipe object that responds to anything" do
-      actual = Math.|
+      actual = Math.pipe
       expect(actual).to be_a(PipeOperator::Pipe)
       expect { actual.anything }.not_to raise_error
     end
 
     it "returns a callable proc" do
-      pipe = Math.|
+      pipe = Math.pipe
       sqrt = pipe.sqrt
       expect(sqrt).to be_a(::Proc)
       expect(sqrt).to be_a(PipeOperator::Closure)
@@ -51,7 +51,7 @@ RSpec.describe PipeOperator do
     end
 
     it "casts to &block" do
-      actual = [9].map(&Math.|.sqrt)
+      actual = [9].map(&Math.pipe.sqrt)
       expect(actual).to eq([3])
 
       actual = [3].map(&2.pipe.send(:*))
@@ -71,12 +71,12 @@ RSpec.describe PipeOperator do
       actual = 2.pipe{Math.atan2(3)}
       expect(actual).to eq(0.982793723247329)
 
-      actual = -2.pipe{abs | Math.atan2(self, 3) | to_s}
+      actual = -2.pipe{abs; Math.atan2(self, 3); to_s}
       expect(actual).to eq("0.5880026035475675")
     end
 
     it "behaves like __send__ with args and no block" do
-      sqrt = Math | :sqrt
+      sqrt = Math.pipe(:sqrt)
       actual = sqrt.call(16)
       expect(actual).to eq(4.0)
 
@@ -94,12 +94,12 @@ RSpec.describe PipeOperator do
       actual = "abc".pipe { reverse.upcase }
       expect(actual).to eq("CBA")
 
-      actual = "abc".pipe { reverse | upcase }
+      actual = "abc".pipe { reverse; upcase }
       expect(actual).to eq("CBA")
     end
 
     it "supports calling objects on other methods" do
-      actual = "abc".pipe { Marshal.dump | Base64.encode64 }
+      actual = "abc".pipe { Marshal.dump; Base64.encode64 }
       expect(actual).to eq("BAhJIghhYmMGOgZFVA==\n")
     end
 
@@ -113,7 +113,7 @@ RSpec.describe PipeOperator do
       actual = "-9".pipe{to_i; abs; Math.sqrt}
       expect(actual).to eq(3)
 
-      actual = "-9".pipe { to_i | abs | Math.sqrt }
+      actual = "-9".pipe { to_i; abs; Math.sqrt }
       expect(actual).to eq(3)
 
       actual = "-9".pipe{to_i; abs; Math.sqrt; to_i; send(:*, 2)}
@@ -151,17 +151,17 @@ RSpec.describe PipeOperator do
     end
 
     it "resolves pipe chain" do
-      pipe = Math.|.sqrt.to_i.to_s
+      pipe = Math.pipe.sqrt.to_i.to_s
       actual = pipe.call(256)
       expect(actual).to eq("16")
 
       actual = 64.pipe{Math.sqrt.to_i.to_s}
       expect(actual).to eq("8")
 
-      actual = [64].map(&Math.|.sqrt.to_i.to_s)
+      actual = [64].map(&Math.pipe.sqrt.to_i.to_s)
       expect(actual).to eq(["8"])
 
-      actual = [64, 256].map(&Math.|.sqrt.to_i.to_s)
+      actual = [64, 256].map(&Math.pipe.sqrt.to_i.to_s)
       expect(actual).to eq(["8", "16"])
     end
 

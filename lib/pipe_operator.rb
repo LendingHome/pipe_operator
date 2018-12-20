@@ -46,4 +46,3 @@ end
 
 BasicObject.send(:include, PipeOperator)
 Kernel.alias_method(:pipe, :__pipe__)
-Module.alias_method(:|, :__pipe__)
