@@ -17,7 +17,7 @@ end
 -9.pipe { abs; Math.sqrt; to_i } #=> 3
 
 # Method chaining is supported:
--9.pipe { abs; Math.sqrt.to_i.to_s } #=> "3
+-9.pipe { abs; Math.sqrt.to_i.to_s } #=> "3"
 ```
 
 ```ruby
